@@ -65,7 +65,20 @@ const Backtest = (data, type = "future") => {
     return { win, loss, trades: output.map((item, index, array) => array[array.length - 1 - index]) };
 };
 
-module.exports = (data, type) => {
+module.exports = (data) => {
+    const direction = Direction(data);
+    const range     = Range(data);
+    const mean      = Mean(range);
+    const median    = Median(range);
+    const min       = Math.min.apply(0, range);
+    const max       = Math.max.apply(0, range);
+    return {
+        direction,
+        rate: Normalize(min / max),
+        volatility: Normalize(mean * 100),
+        stability: Normalize(median / mean)
+    };
+    /*
     const backtest  = Backtest(data, type);
     const profit    = backtest.trades?.map((item) => item.profit)?.reduce((a, b) => a + b, 0);
     const direction = Direction(data);
@@ -84,4 +97,5 @@ module.exports = (data, type) => {
         stability: Normalize(median / mean),
         backtest: backtest.trades
     };
+    */
 };

@@ -2,7 +2,7 @@ const { Load, Tickers, Candlesticks } = require("./binance");
 const Analysis = require("./analysis");
 
 module.exports = (request, response) => {
-    const sort = request.query?.sort || "profit";
+    const sort = request.query?.sort || "rate";
     const type = request.query?.type || "future";
     Load(type).then(async () => {
         return Tickers().then(async (tickers) => {
@@ -16,6 +16,7 @@ module.exports = (request, response) => {
             response.json(all.filter((item) => item).sort((a, b) => b[sort] - a[sort]));
         });
     }).catch((error) => {
+        console.log(error);
         response.json(error);
     });
 };
