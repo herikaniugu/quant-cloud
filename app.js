@@ -6,6 +6,7 @@ const app = express();
 const port = 8000;
 
 require("dotenv").config();
+process.env.TZ = "Africa/Dar_es_Salaam";
 app.set("json spaces", 2);
 
 app.use(express.urlencoded({ extended: true }));
