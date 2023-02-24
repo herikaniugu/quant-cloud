@@ -18,7 +18,7 @@ app.use("/soccer", soccer);
 app.use("/stock", stock);
 app.use("/trade", trade);
 app.use("/", (request, response) => {
-    response.json({});    
+    response.json({ connected: process.env.BINANCE_API_KEY ? true : false });   
 });
 
 app.listen(port, () => {
