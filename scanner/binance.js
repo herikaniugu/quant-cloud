@@ -15,6 +15,12 @@ const Load = async (type = "future") => {
     return await binance.loadMarkets();
 };
 
+const Balance = async () => {
+    return await binance.fetchBalance().then(async (balance) => {
+        return balance.info.assets.filter((item) => item.walletBalance !== 0);
+    });
+};
+
 const Tickers = async (base = "USDT") => {
     return await binance?.fetchTickers().then((tickers) => {
         const data = Object.keys(tickers).filter((ticker) => ticker.endsWith(base)).map((key) => tickers[key]);
@@ -107,6 +113,7 @@ const Trade = async (ticker, action, amount, price, risk, reward) => {
 
 module.exports = {
     Load,
+    Balance,
     Tickers,
     Positions,
     Orders,

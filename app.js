@@ -1,9 +1,7 @@
-const ccxt = require("ccxt");
+const { coinspot } = require("ccxt");
 const express = require("express");
 const scanner = require("./scanner");
-const trade = require("./scanner/trade");
-const soccer = require("./soccer");
-const stock = require("./stock");
+const balance = require("./scanner/balance");
 const app = express();
 const port = 8000;
 
@@ -14,11 +12,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/scanner", scanner);
-app.use("/soccer", soccer);
-app.use("/stock", stock);
-app.use("/trade", trade);
+app.use("/balance", balance);
 app.use("/", (request, response) => {
-    response.json({ connected: process.env.BINANCE_API_KEY ? true : false });   
+    response.json({
+        connected: process.env.BINANCE_API_KEY ? true : false,
+        now: new Date()
+    });
 });
 
 app.listen(port, () => {
