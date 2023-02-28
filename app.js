@@ -1,4 +1,3 @@
-const { coinspot } = require("ccxt");
 const express = require("express");
 const scanner = require("./scanner");
 const balance = require("./scanner/balance");
@@ -16,7 +15,7 @@ app.use("/scanner", scanner);
 app.use("/balance", balance);
 app.use("/", (request, response) => {
     response.json({
-        connected: process.env.BINANCE_API_KEY ? true : false,
+        connected: process.env.BINANCE_API_KEY && process.env.BYBIT_API_KEY ? true : false,
         now: new Date()
     });
 });
