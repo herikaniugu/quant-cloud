@@ -76,7 +76,7 @@ module.exports = (data) => {
         direction,
         rate: Normalize(min / max),
         volatility: Normalize(mean * 100),
-        stability: Normalize(median / mean)
+        inequality: Normalize(median / mean)
     };
     /*
     const backtest  = Backtest(data, type);
@@ -94,7 +94,7 @@ module.exports = (data) => {
         loss: backtest.loss,
         rate: Normalize(min / max),
         volatility: Normalize(mean * 100),
-        stability: Normalize(median / mean),
+        inequality: Normalize(median / mean),
         backtest: backtest.trades
     };
     */

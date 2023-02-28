@@ -1,13 +1,15 @@
-const { Load, Tickers, Candlesticks } = require("./binance");
+const Exchange = require("./exchange");
 const Analysis = require("./analysis");
 
 module.exports = (request, response) => {
     const sort = request.query?.sort || "rate";
     const type = request.query?.type || "future";
+    const exchange = request.query?.exchange || "binance";
+    const { Load, Tickers, Candlesticks } = Exchange(exchange);
     Load(type).then(async () => {
         return Tickers().then(async (tickers) => {
             const all = await Promise.all(tickers.map(async (item) => {
-                return await Candlesticks(item.info.symbol).then(async (data) => {
+                return await Candlesticks(item.info.symbol).then(async (data) => { // "15m", 24 * 4
                     if (data.length < 7) return;
                     const analysis = Analysis(data);
                     return Object.assign({ ticker: item.info.symbol }, analysis);
