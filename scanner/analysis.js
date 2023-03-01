@@ -74,9 +74,9 @@ module.exports = (data) => {
     const max       = Math.max.apply(0, range);
     return {
         direction,
-        rate: Normalize(min / max),
         volatility: Normalize(mean * 100),
-        inequality: Normalize(median / mean)
+        distribution: Normalize(median / mean),
+        strength:   Normalize(min / max)
     };
     /*
     const backtest  = Backtest(data, type);
@@ -92,9 +92,9 @@ module.exports = (data) => {
         direction,
         win: backtest.win,
         loss: backtest.loss,
-        rate: Normalize(min / max),
         volatility: Normalize(mean * 100),
-        inequality: Normalize(median / mean),
+        distribution: Normalize(median / mean),
+        strength: Normalize(min / max),
         backtest: backtest.trades
     };
     */
