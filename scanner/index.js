@@ -12,7 +12,7 @@ module.exports = (request, response) => {
             const all = await Promise.all(tickers.map(async (item) => {
                 return await Candlesticks(item.info.symbol).then(async (data) => { // "15m", 24 * 4
                     if (data.length < 7) return;
-                    const analysis = Analysis(data);
+                    const analysis = Analysis(data, type);
                     return Object.assign({ ticker: item.info.symbol }, analysis);
                 });
             }));
