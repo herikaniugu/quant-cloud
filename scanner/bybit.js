@@ -34,8 +34,8 @@ const Tickers = async (base = "USDT") => {
     });
 };
 
-const Candlesticks = async (symbol, timeframe = "1d", period = 7) => {
-    return await bybit?.fetchOHLCV(symbol, timeframe, undefined, period).then((data) => {
+const Prices = async (ticker, timeframe = "1d", period = 7) => {
+    return await bybit?.fetchOHLCV(ticker, timeframe, undefined, period).then((data) => {
         return data.map((item, index, array) => array[array.length - 1 - index]).map((value) => {
             return {
                 timestamp: value[0],
@@ -123,7 +123,7 @@ module.exports = {
     Tickers,
     Positions,
     Orders,
-    Candlesticks,
+    Prices,
     Trade,
     Cancel
 };

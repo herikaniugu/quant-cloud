@@ -1,6 +1,7 @@
 const express = require("express");
 const scanner = require("./scanner");
 const balance = require("./scanner/balance");
+const trade  = require("./scanner/trade");
 const app = express();
 const port = 8000;
 
@@ -13,10 +14,11 @@ app.use(express.json());
 
 app.use("/scanner", scanner);
 app.use("/balance", balance);
+app.use("/trade", trade);
 app.use("/", (request, response) => {
     response.json({
         connected: process.env.BINANCE_API_KEY && process.env.BYBIT_API_KEY ? true : false,
-        now: new Date()
+        datetime: new Date()
     });
 });
 
