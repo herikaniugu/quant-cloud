@@ -20,14 +20,28 @@ const Direction = (data) => {
     return range ? "range" : (uptrend ? "uptrend" : (downtrend ? "downtrend" : "none"));
 };
 
-const Level = (data) => {
+const Strategy = (data) => {
+    const direction     = Direction(data);
+    const price         = data.find((item, index) => index === 0).open;
     const array         = data.filter((item, index) => index > 0);
-    const price         = data.find((item, index) => index === 0).close;
     const resistance    = Math.max.apply(0, array.map((item) => item.high));
     const support       = Math.min.apply(0, array.map((item) => item.low));
     const supply        = resistance - (resistance - support) / 4;
     const demand        = support + (resistance - support) / 4;
-    return { price, resistance, support, supply, demand };
+    const position      = price < resistance && price > supply ? "short" : (price < demand && price > support ? "long" : "none");
+    const condition     = price < support ? "oversold" : (price > resistance ? "overbought" : "none");
+    const trade         = { price, stop: 0, limit: 0, size: 0 };
+    if (position === "short") {
+        trade.stop      = Math.max(resistance, price + price * 0.1 / 100);
+        trade.limit     = support;
+        trade.amount    = Normalize(price * 0.5 / (trade.stop - price));
+    }
+    if (position === "long") {
+        trade.stop      = Math.min(support, price - price * 0.1 / 100);
+        trade.limit     = resistance;
+        trade.amount    = Normalize(trade.stop * 0.5 / (price - trade.stop));
+    }
+    return { resistance, support, supply, demand, direction, condition, position, trade };
 };
 
 const Normalize = (value) => {
@@ -35,11 +49,11 @@ const Normalize = (value) => {
 };
 
 const Backtest = (data, type) => {
-    const { supply, demand } = Level(data);
+    const { supply, demand } = Strategy(data);
     const input         = data.map((item, index, array) => array[array.length - 1 - index]), output = [];
     const open          = (id = 0) => input[id]?.open;
     const close         = (id = 0) => input[id]?.close;
-    for (let id = 0; id < input.length; id++) {
+    for (let id = 0; id < input.length - 1; id++) {
         const entry     = open(id);
         const exit      = close(id);
         const peak      = open(id - 1) < close(id - 1);
@@ -61,33 +75,26 @@ const Backtest = (data, type) => {
             });
         }
     }
-    return output.map((item, index, array) => array[array.length - 1 - index]);
+    const trades = output.map((item, index, array) => array[array.length - 1 - index]);
+    return {
+        profit: trades.map((item) => item.profit).reduce((a, b) => a + b, 0),
+        trades
+    };
 };
 
-
 module.exports = (data, type) => {
-    const { price, resistance, supply, demand, support } = Level(data);
+    const strategy  = Strategy(data);
     const backtest  = Backtest(data, type);
-    const direction = Direction(data);
-    const condition = price < support ? "oversold" : (price > resistance ? "overbought" : "none");
-    const profit    = backtest.map((item) => item.profit).reduce((a, b) => a + b, 0);
     const range     = Range(data);
     const mean      = Mean(range);
     const median    = Median(range);
     const min       = Math.min.apply(0, range);
     const max       = Math.max.apply(0, range);
     return {
-        price,
-        resistance,
-        supply,
-        demand,
-        support,
-        direction,
-        condition,
         stability: Normalize(min / max),
         volatility: Normalize(mean * 100),
         inequality: Normalize(mean / median),
-        profit,
+        strategy,
         backtest
     };
 };
