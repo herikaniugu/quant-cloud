@@ -58,7 +58,7 @@ const Backtest = (data, type) => {
         const exit      = close(id);
         const peak      = open(id - 1) < close(id - 1);
         const trough    = open(id - 1) > close(id - 1);
-        if (id > 0 && peak && entry > supply && type == "future") {
+        if (id > 0 && peak && entry > supply && type === "future") {
             output.push({
                 position: "short",
                 profit: Normalize((entry / exit - 1) * 100),
@@ -82,7 +82,7 @@ const Backtest = (data, type) => {
     };
 };
 
-module.exports = (data, type) => {
+module.exports = (data, type = "future") => {
     const strategy  = Strategy(data);
     const backtest  = Backtest(data, type);
     const range     = Range(data);

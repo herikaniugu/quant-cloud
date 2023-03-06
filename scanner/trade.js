@@ -4,12 +4,12 @@ const Analysis = require("./analysis");
 module.exports = (request, response) => {
     const exchange = request.query?.exchange || "binance";
     const { Load, Tickers, Prices, Trade } = Exchange(exchange);
-    Load("future").then(async () => {
+    Load().then(async () => {
         return Tickers().then(async (tickers) => {
             const all = await Promise.all(tickers.map(async (item) => {
                 return await Prices(item.info.symbol).then(async (data) => {
                     if (data.length < 7) return;
-                    const analysis = Analysis(data, type);
+                    const analysis = Analysis(data);
                     return Object.assign({ ticker: item.info.symbol }, analysis);
                 });
             }));
