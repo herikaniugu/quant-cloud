@@ -3,7 +3,7 @@ const Analysis = require("./analysis");
 
 module.exports = (request, response) => {
     const exchange = request.query?.exchange || "binance";
-    const { Load, Tickers, Prices, Trade } = Exchange(exchange);
+    const { Load, Tickers, Prices } = Exchange(exchange);
     Load().then(async () => {
         return await Tickers().then(async (tickers) => {
             const all = await Promise.all(tickers.map(async (item) => {
@@ -18,15 +18,7 @@ module.exports = (request, response) => {
                 const position = ["long", "short"].indexOf(item.strategy.trade.position) >= 0;
                 return direction && position && item.stability > 0.25 && item.volatility > 5 && item.inequality > 0.5 && item.inequality < 1.5;
             });
-            return array.sort((a, b) => b.volatility - a.volatility).filter((value, index) => index < 5);
-        }).then(async (tickers) => {
-            console.log(tickers);
-            return await Promise.all(tickers.map(async (each) => {
-                const { position, trade } = each.strategy;
-                return await Trade(each.ticker, position, trade.amount, trade.price, trade.stop, trade.limit);
-            }));
-        }).then((positions) => {
-            response.json(positions);
+            response.json(array.sort((a, b) => b.volatility - a.volatility).filter((value, index) => index < 5));
         });
     }).catch((error) => {
         console.log(error);
