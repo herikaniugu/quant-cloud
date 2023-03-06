@@ -11,6 +11,10 @@ const Median = (range) => {
     return (range[(range.length / 2) - 1] + range[range.length / 2]) / 2;
 };
 
+const Normalize = (value) => {
+    return value && isFinite(value) ? Math.round((value + Number.EPSILON) * 10000) / 10000 : 0;
+};
+
 const Direction = (data) => {
     const first         = data.find((item, index) => index === 0);
     const last          = data.find((item, index, array) => index === array.length - 1);
@@ -23,6 +27,7 @@ const Direction = (data) => {
 const Strategy = (data) => {
     const direction     = Direction(data);
     const price         = data.find((item, index) => index === 0).open;
+    const candlestick   = data.find((item, index) => index === 1);
     const array         = data.filter((item, index) => index > 0);
     const resistance    = Math.max.apply(0, array.map((item) => item.high));
     const support       = Math.min.apply(0, array.map((item) => item.low));
@@ -30,22 +35,20 @@ const Strategy = (data) => {
     const demand        = support + (resistance - support) / 4;
     const position      = price < resistance && price > supply ? "short" : (price < demand && price > support ? "long" : "none");
     const condition     = price < support ? "oversold" : (price > resistance ? "overbought" : "none");
-    const trade         = { price, stop: 0, limit: 0, size: 0 };
-    if (position === "short") {
-        trade.stop      = Math.max(resistance, price + price * 0.1 / 100);
+    const trade         = { position: "none", price, stop: 0, limit: 0, amount: 0 }, tolerance = 0.5;
+    if (position === "short" && candlestick.open < candlestick.close) {
+        trade.position  = position;
+        trade.stop      = Math.min(Math.max(resistance, price + price * 1 / 100), price + price * 7.5 / 100);
         trade.limit     = support;
-        trade.amount    = Normalize(price * 0.5 / (trade.stop - price));
+        trade.amount    = Normalize(price * tolerance / (trade.stop - price));
     }
-    if (position === "long") {
-        trade.stop      = Math.min(support, price - price * 0.1 / 100);
+    if (position === "long" && candlestick.open > candlestick.close) {
+        trade.position  = position;
+        trade.stop      = Math.max(Math.min(support, price - price * 1 / 100), price - price * 7.5 / 100);
         trade.limit     = resistance;
-        trade.amount    = Normalize(trade.stop * 0.5 / (price - trade.stop));
+        trade.amount    = Normalize(trade.stop * tolerance / (price - trade.stop));
     }
-    return { resistance, support, supply, demand, direction, condition, position, trade };
-};
-
-const Normalize = (value) => {
-    return value && isFinite(value) ? Math.round((value + Number.EPSILON) * 10000) / 10000 : 0;
+    return { resistance, support, supply, demand, direction, condition, trade };
 };
 
 const Backtest = (data, type) => {

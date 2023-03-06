@@ -8,7 +8,7 @@ module.exports = (request, response) => {
     const exchange = request.query?.exchange || "binance";
     const { Load, Tickers, Prices } = Exchange(exchange);
     Load(type).then(async () => {
-        return Tickers().then(async (tickers) => {
+        return await Tickers().then(async (tickers) => {
             const all = await Promise.all(tickers.map(async (item) => {
                 return await Prices(item.info.symbol).then(async (data) => { // "15m", 24 * 4
                     if (data.length < 7) return;

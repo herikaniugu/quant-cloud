@@ -1,5 +1,6 @@
 const express = require("express");
 const scanner = require("./scanner");
+const leverage  = require("./scanner/leverage");
 const balance = require("./scanner/balance");
 const trade  = require("./scanner/trade");
 const app = express();
@@ -13,6 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/scanner", scanner);
+app.use("/leverage", leverage);
 app.use("/balance", balance);
 app.use("/trade", trade);
 app.use("/", (request, response) => {

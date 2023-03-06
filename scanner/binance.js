@@ -88,7 +88,7 @@ const Trade = async (ticker, action, amount, price, risk, reward) => {
         action === "long" ? "BUY" : "SELL",
         quantity,
         undefined,
-        { positionSide: side }
+        { positionSide: side, leverage: 10 }
     ).then(async (order) => {
         return await binance?.createOrder(
             ticker,
@@ -111,6 +111,10 @@ const Trade = async (ticker, action, amount, price, risk, reward) => {
     });
 };
 
+const Leverage = async (symbol, leverage = 10, mode = "isolated") => {
+    return await binance?.setLeverage(leverage, symbol, { marginMode: mode });
+};
+
 module.exports = {
     Load,
     Balance,
@@ -119,5 +123,6 @@ module.exports = {
     Orders,
     Prices,
     Trade,
+    Leverage,
     Cancel
 };
